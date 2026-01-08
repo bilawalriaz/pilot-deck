@@ -30,7 +30,7 @@ _discord_send() {
     local webhook_url="$1"
     local message="$2"
     local color="${3:-3447003}"  # Default blue
-    local footer="${4:-Pilot Deck}"
+    local footer="${4:-Hyperflash Agent}"
 
     # Skip if webhook is not configured
     if [ -z "$webhook_url" ] || [ "$webhook_url" = "" ]; then
@@ -77,7 +77,7 @@ discord_activity() {
     _load_discord_config
     local message="$*"
     echo -e "${BLUE}[Activity]${NC} $message"
-    _discord_send "$DISCORD_WEBHOOK_ACTIVITY" "$message" 3447003 "Agent Activity"
+    _discord_send "$DISCORD_WEBHOOK_ACTIVITY" "$message" 3447003 "Hyperflash Agent"
 }
 
 # Send alert notification
@@ -85,7 +85,7 @@ discord_alert() {
     _load_discord_config
     local message="$*"
     echo -e "${RED}[Alert]${NC} $message" >&2
-    _discord_send "$DISCORD_WEBHOOK_ALERTS" "$message" 15158332 "ALERT"
+    _discord_send "$DISCORD_WEBHOOK_ALERTS" "$message" 15158332 "Hyperflash Agent"
 }
 
 # Send success notification
@@ -93,7 +93,7 @@ discord_success() {
     _load_discord_config
     local message="$*"
     echo -e "${GREEN}[Success]${NC} $message"
-    _discord_send "$DISCORD_WEBHOOK_ACTIVITY" "$message" 3066993 "Success"
+    _discord_send "$DISCORD_WEBHOOK_ACTIVITY" "$message" 3066993 "Hyperflash Agent"
 }
 
 # Send project update notification
@@ -101,7 +101,7 @@ discord_project() {
     _load_discord_config
     local message="$*"
     echo -e "${GREEN}[Project]${NC} $message"
-    _discord_send "$DISCORD_WEBHOOK_PROJECTS" "$message" 3066993 "Project Update"
+    _discord_send "$DISCORD_WEBHOOK_PROJECTS" "$message" 3066993 "Hyperflash Agent"
 }
 
 # Send daily digest
