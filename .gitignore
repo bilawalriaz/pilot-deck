@@ -1,0 +1,8 @@
+# Discord webhooks (contains sensitive URLs)
+.env
+*.env
+
+# Editor temp files
+*~
+*.swp
+*.swo
