@@ -22,6 +22,9 @@ crontab -e
 
 # Pilot Deck - Sync pilot-deck to GitHub (after daily backup, 04:30)
 30 4 * * * (cd ~/pilot-deck && git add -A && git commit -m "Auto-sync: $(date +\%Y-\%m-\%d)" && git push) >> ~/logs/cron-sync.log 2>&1
+
+# Pilot Deck - Notion sync (every 15 minutes)
+*/15 * * * * ~/scripts/pilot-deck/notion-sync.sh export >> ~/logs/cron-notion.log 2>&1
 ```
 
 ## Cron Job Descriptions
@@ -31,6 +34,7 @@ crontab -e
 | 02:00 | backup-daily.sh | Daily backup with Discord notifications |
 | 04:30 | git sync | Push pilot-deck changes to GitHub |
 | 08:00 | daily-digest.sh | Morning health summary + project nudges |
+| */:15 | notion-sync.sh | Sync pilot-deck projects to Notion |
 | */:30 | health-check.sh | System health monitoring (alerts on issues) |
 
 ## Applying Cron Jobs
@@ -57,6 +61,9 @@ cat > /tmp/pilot-deck-cron <<'EOF'
 
 # Pilot Deck - Sync pilot-deck to GitHub (after daily backup, 04:30)
 30 4 * * * (cd ~/pilot-deck && git add -A && git commit -m "Auto-sync: $(date +\%Y-\%m-\%d)" && git push) >> ~/logs/cron-sync.log 2>&1
+
+# Pilot Deck - Notion sync (every 15 minutes)
+*/15 * * * * ~/scripts/pilot-deck/notion-sync.sh export >> ~/logs/cron-notion.log 2>&1
 EOF
 
 # Apply (will show current crontab first, then replace)
@@ -85,6 +92,9 @@ Test each job manually before relying on automation:
 
 # Test git sync
 (cd ~/pilot-deck && git add -A && git commit -m "Test sync" && git push)
+
+# Test Notion sync
+~/scripts/pilot-deck/notion-sync.sh export
 ```
 
 ## Cron Logs
@@ -102,6 +112,9 @@ tail -f ~/logs/backup-daily-wrapper.log
 
 # Sync log
 tail -f ~/logs/cron-sync.log
+
+# Notion sync log
+tail -f ~/logs/cron-notion.log
 ```
 
 ## Time Zones
