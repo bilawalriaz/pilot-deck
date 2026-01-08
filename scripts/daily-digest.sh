@@ -15,43 +15,54 @@ echo "=== Daily Digest Generation ==="
 echo "Started: $(date)"
 echo ""
 
-# Build digest message
-DIGEST="## Morning Report - $(date +%Y-%m-%d)%0A%0A"
+# Build digest message (use actual newlines for Discord markdown)
+DIGEST="## Morning Report - $(date +%Y-%m-%d)
+"
 
 # --- System Health ---
-DIGEST+="**System Health**%0A"
+DIGEST+="**System Health**
+"
 
 # Docker containers
 DOCKER_RUNNING=$(docker ps --format '{{.Names}}' | wc -l)
 DOCKER_TOTAL=$(docker ps -a --format '{{.Names}}' | wc -l)
-DIGEST+="- Docker: $DOCKER_RUNNING/$DOCKER_TOTAL containers running%0A"
+DIGEST+="- Docker: $DOCKER_RUNNING/$DOCKER_TOTAL containers running
+"
 
 # Cloudflared
 if systemctl is-active --quiet cloudflared; then
-    DIGEST+="- Cloudflared: ✓ Active%0A"
+    DIGEST+="- Cloudflared: ✓ Active
+"
 else
-    DIGEST+="- Cloudflared: ✗ INACTIVE%0A"
+    DIGEST+="- Cloudflared: ✗ INACTIVE
+"
 fi
 
 # Disk space
 DISK_FREE=$(df / | tail -1 | awk '{print $4}')
 DISK_USAGE=$(df / | tail -1 | awk '{print $5}')
-DIGEST+="- Disk: $DISK_USAGE used ($DISK_FREE free)%0A"
+DIGEST+="- Disk: $DISK_USAGE used ($DISK_FREE free)
+"
 
 # Last backup
 LATEST_BACKUP=$(find "$BACKUP_DIR" -maxdepth 1 -type d -name "20*" | sort -r | head -1)
 if [ -n "$LATEST_BACKUP" ]; then
     BACKUP_AGE_HOURS=$((( $(date +%s) - $(stat -c %Y "$LATEST_BACKUP") ) / 3600))
     BACKUP_SIZE=$(du -sh "$LATEST_BACKUP" | cut -f1)
-    DIGEST+="- Last backup: ${BACKUP_AGE_HOURS}h ago (${BACKUP_SIZE})%0A"
+    DIGEST+="- Last backup: ${BACKUP_AGE_HOURS}h ago (${BACKUP_SIZE})
+"
 else
-    DIGEST+="- Last backup: NOT FOUND%0A"
+    DIGEST+="- Last backup: NOT FOUND
+"
 fi
 
-DIGEST+="%0A"
+DIGEST+="
+
+"
 
 # --- Project Nudges ---
-DIGEST+="**Project Nudges**%0A"
+DIGEST+="**Project Nudges**
+"
 
 # Find projects by category
 for category in infrastructure ml-ai career learning side-projects; do
@@ -70,34 +81,44 @@ for category in infrastructure ml-ai career learning side-projects; do
             next_step=$(grep "^## Next Step" -A 1 "$latest_project" | tail -1 | sed 's/## Next Step//' || echo "not specified")
 
             if [ "$days_since" -gt 3 ]; then
-                DIGEST+="• **$project_name** ($category) - Stage $stage, last touched ${days_since}d ago%0A  Next: $next_step%0A%0A"
+                DIGEST+="• **$project_name** ($category) - Stage $stage, last touched ${days_since}d ago
+  Next: $next_step
+
+"
             fi
         fi
     fi
 done
 
 if [[ "$DIGEST" != *"•"* ]]; then
-    DIGEST+="No stale projects. Good momentum!%0A"
+    DIGEST+="No stale projects. Good momentum!
+"
 fi
 
-DIGEST+="%0A"
+DIGEST+="
+
+"
 
 # --- Suggested Focus ---
-DIGEST+="**Suggested Focus**%0A"
+DIGEST+="**Suggested Focus**
+"
 
 # Check for pending PRs
 if gh pr list --repo bilawalriaz/vps-config --state open --limit 1 | grep -q .; then
     PR_COUNT=$(gh pr list --repo bilawalriaz/vps-config --state open --limit 100 | wc -l)
-    DIGEST+="• You have $PR_COUNT pending PR(s) awaiting review%0A"
+    DIGEST+="• You have $PR_COUNT pending PR(s) awaiting review
+"
 fi
 
 # Check for incomplete todos
 if grep -q "\- \[ \]" "$PILOT_DECK/todos/today.md" 2>/dev/null; then
     TODO_COUNT=$(grep -c "\- \[ \]" "$PILOT_DECK/todos/today.md")
-    DIGEST+="• $TODO_COUNT items in today.md backlog%0A"
+    DIGEST+="• $TODO_COUNT items in today.md backlog
+"
 fi
 
-DIGEST+="%0A_Have a great day!_"
+DIGEST+="
+_Have a great day!_"
 
 # Send to Discord
 echo "Sending daily digest..."

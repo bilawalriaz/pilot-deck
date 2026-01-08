@@ -65,9 +65,12 @@ _discord_send_plain() {
         return 0
     fi
 
+    # Escape message for JSON: newlines to \n, quotes to \", backslashes to \\
+    local escaped_message=$(echo "$message" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+
     curl -s -X POST "$webhook_url" \
         -H "Content-Type: application/json" \
-        -d "{\"content\": \"$message\"}" > /dev/null 2>&1
+        -d "{\"content\": \"$escaped_message\"}" > /dev/null 2>&1
 }
 
 # Public API Functions
